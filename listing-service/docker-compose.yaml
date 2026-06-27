@@ -1,0 +1,60 @@
+services:
+  listing-service:
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/cmd/Dockerfile
+    container_name: listing-service
+    env_file:
+      - ${PROJECT_ROOT}/.env
+    environment:
+      - HTTP_ADDR=:6060
+      - POSTGRES_HOST=listing-postgres
+      - REDIS_HOST=listing-redis
+      - LOGGER_FOLDER=/app/out/logs
+    volumes:
+      - ${PROJECT_ROOT}/out/logs:/app/out/logs
+    ports:
+      - "6060:6060"
+    restart: always
+    networks:
+      - microservices-network
+
+  listing-postgres:
+    image: postgres:18.1-bookworm
+    container_name: listing-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
+    restart: always
+    networks:
+      - microservices-network
+
+  listing-redis:
+    image: redis:7.4-alpine
+    container_name: listing-redis
+    restart: always
+    networks:
+      - microservices-network
+
+  listing-postgres-migrate:
+    image: migrate/migrate:v4.19.1
+    volumes:
+      - ${PROJECT_ROOT}/migrations:/migrations
+    networks:
+      - microservices-network
+
+  port-forwarder:
+    image: alpine/socat:1.8.0.3
+    container_name: listing-port-forwarder
+    command: tcp-listen:5432,fork,reuseaddr tcp-connect:listing-postgres:5432
+    ports:
+      - "127.0.0.1:5435:5432"
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    external: true

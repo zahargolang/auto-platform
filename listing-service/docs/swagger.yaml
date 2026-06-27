@@ -1,0 +1,442 @@
+basePath: /api/listings
+definitions:
+  core_domain.BodyType:
+    enum:
+    - sedan
+    - suv
+    - hatchback
+    - coupe
+    - wagon
+    - minivan
+    - pickup
+    type: string
+    x-enum-varnames:
+    - BodyTypeSedan
+    - BodyTypeSUV
+    - BodyTypeHatchback
+    - BodyTypeCoupe
+    - BodyTypeWagon
+    - BodyTypeMinivan
+    - BodyTypePickup
+  core_domain.FuelType:
+    enum:
+    - gasoline
+    - diesel
+    - electric
+    - hybrid
+    - lpg
+    type: string
+    x-enum-varnames:
+    - FuelTypeGasoline
+    - FuelTypeDiesel
+    - FuelTypeElectric
+    - FuelTypeHybrid
+    - FuelTypeLPG
+  core_domain.ListingStatus:
+    enum:
+    - active
+    - inactive
+    - sold
+    type: string
+    x-enum-varnames:
+    - ListingStatusActive
+    - ListingStatusInactive
+    - ListingStatusSold
+  core_domain.TransmissionType:
+    enum:
+    - automatic
+    - manual
+    - robot
+    - variator
+    type: string
+    x-enum-varnames:
+    - TransmissionAutomatic
+    - TransmissionManual
+    - TransmissionRobot
+    - TransmissionVariator
+  listings_transport_http.CreateListingRequest:
+    properties:
+      body_type:
+        $ref: '#/definitions/core_domain.BodyType'
+      city:
+        type: string
+      color:
+        type: string
+      description:
+        type: string
+      engine_volume:
+        minimum: 0
+        type: number
+      fuel_type:
+        $ref: '#/definitions/core_domain.FuelType'
+      make:
+        type: string
+      mileage:
+        minimum: 0
+        type: integer
+      model:
+        type: string
+      price:
+        type: integer
+      region:
+        type: string
+      title:
+        maxLength: 200
+        minLength: 3
+        type: string
+      transmission:
+        $ref: '#/definitions/core_domain.TransmissionType'
+      year:
+        type: integer
+    required:
+    - body_type
+    - city
+    - color
+    - description
+    - fuel_type
+    - make
+    - model
+    - price
+    - region
+    - title
+    - transmission
+    - year
+    type: object
+  listings_transport_http.ListingResponse:
+    properties:
+      body_type:
+        $ref: '#/definitions/core_domain.BodyType'
+      city:
+        type: string
+      color:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      engine_volume:
+        type: number
+      fuel_type:
+        $ref: '#/definitions/core_domain.FuelType'
+      id:
+        type: string
+      make:
+        type: string
+      mileage:
+        type: integer
+      model:
+        type: string
+      price:
+        type: integer
+      region:
+        type: string
+      status:
+        $ref: '#/definitions/core_domain.ListingStatus'
+      title:
+        type: string
+      transmission:
+        $ref: '#/definitions/core_domain.TransmissionType'
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      year:
+        type: integer
+    type: object
+  listings_transport_http.ListingsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/listings_transport_http.ListingResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  listings_transport_http.UpdateListingRequest:
+    properties:
+      city:
+        type: string
+      color:
+        type: string
+      description:
+        type: string
+      mileage:
+        type: integer
+      price:
+        type: integer
+      region:
+        type: string
+      status:
+        $ref: '#/definitions/core_domain.ListingStatus'
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Сервис объявлений о продаже автомобилей kolesa.
+  title: Listing Service API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Возвращает список объявлений с фильтрацией и пагинацией
+      parameters:
+      - description: Марка
+        in: query
+        name: make
+        type: string
+      - description: Модель
+        in: query
+        name: model
+        type: string
+      - description: Город
+        in: query
+        name: city
+        type: string
+      - description: Регион
+        in: query
+        name: region
+        type: string
+      - description: Тип топлива
+        in: query
+        name: fuel_type
+        type: string
+      - description: Тип трансмиссии
+        in: query
+        name: transmission
+        type: string
+      - description: Тип кузова
+        in: query
+        name: body_type
+        type: string
+      - description: Год от
+        in: query
+        name: year_from
+        type: integer
+      - description: Год до
+        in: query
+        name: year_to
+        type: integer
+      - description: Цена от
+        in: query
+        name: price_from
+        type: integer
+      - description: Цена до
+        in: query
+        name: price_to
+        type: integer
+      - description: Пробег от
+        in: query
+        name: mileage_from
+        type: integer
+      - description: Пробег до
+        in: query
+        name: mileage_to
+        type: integer
+      - description: Страница
+        in: query
+        name: page
+        type: integer
+      - description: Размер страницы
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/listings_transport_http.ListingsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список объявлений
+      tags:
+      - listings
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новое объявление о продаже автомобиля (требует авторизации)
+      parameters:
+      - description: Данные объявления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/listings_transport_http.CreateListingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/listings_transport_http.ListingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать объявление
+      tags:
+      - listings
+  /{id}:
+    delete:
+      description: Удаляет объявление (требует авторизации, только владелец)
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить объявление
+      tags:
+      - listings
+    get:
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/listings_transport_http.ListingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить объявление по ID
+      tags:
+      - listings
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет объявление (требует авторизации, только владелец)
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Поля для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/listings_transport_http.UpdateListingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/listings_transport_http.ListingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить объявление
+      tags:
+      - listings
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - listings
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
