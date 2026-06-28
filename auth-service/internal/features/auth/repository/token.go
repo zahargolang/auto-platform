@@ -8,7 +8,6 @@ import (
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
 	core_errors "github.com/zosinkin/social_network/internal/core/errors"
 	core_postgres_pool "github.com/zosinkin/social_network/internal/core/repository/postgres/pool"
-	"go.uber.org/zap"
 )
 
 
@@ -30,12 +29,17 @@ func (r *RefreshTokenRepo) GetRefreshToken(
 
 	var RefreshToken RefreshTokenModel
 	if err := RefreshToken.TokenScan(row); err != nil {
-		r.log.Error("Token scan error:", zap.String("op", op), zap.Error(err))
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
 			return &core_domain.RefreshToken{}, fmt.Errorf(
-				"%v: %v",
+				"%v: %w",
 				op,
 				core_errors.ErrNotFound,
+			)
+		} else {
+			return &core_domain.RefreshToken{}, fmt.Errorf(
+				"%v: %w",
+				op,
+				err,
 			)
 		}
 	}
@@ -76,7 +80,6 @@ func (r *RefreshTokenRepo) CreateRefreshToken(
 	)
 	var refreshTokenModel RefreshTokenModel
 	if err := refreshTokenModel.TokenScan(row); err != nil {
-		r.log.Error("Token scan error:", zap.String("op", op), zap.Error(err))
 		return core_domain.RefreshToken{}, fmt.Errorf("%s: %w", op, err)
 	}
 	
@@ -101,7 +104,6 @@ func (r *RefreshTokenRepo) RevokeRefreshToken(
 
 	_, err := r.pool.Exec(ctx, query, tokenString)
 	if err != nil {
-		r.log.Error("Revoke refresh token error:", zap.String("op", op), zap.Error(err))
 		return fmt.Errorf("%v: %w", op, err)
 	}
 	return nil

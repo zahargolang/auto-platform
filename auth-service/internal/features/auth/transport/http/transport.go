@@ -8,7 +8,6 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
-	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 	core_middleware "github.com/zosinkin/social_network/internal/core/transport/http/middleware"
 	auth_service "github.com/zosinkin/social_network/internal/features/auth/service"
 
@@ -17,17 +16,13 @@ import (
 
 type AuthHTTPHandler struct {
 	authService Service
-	log 		*core_logger.Logger
 }
-
 
 func NewAuthHTTPHandler(
 	service Service,
-	log *core_logger.Logger,
 ) *AuthHTTPHandler {
 	return &AuthHTTPHandler{
 		authService: service,
-		log:         log,
 	}
 }
 

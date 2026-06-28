@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	core_errors "github.com/zosinkin/social_network/internal/core/errors"
-	"go.uber.org/zap"
 )
 
 type CreateUserResponse UserDTOResponse
@@ -41,10 +40,10 @@ func (h *AuthHTTPHandler) Register(c *gin.Context) {
 		req.Password,
 	)
 	if err != nil {
-		h.log.Error("register user error:", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"failed to create user": err.Error(),
 		})
+		return
 	}
 	resp := UserDTOResponse{
 		ID:          user.ID,
@@ -54,7 +53,6 @@ func (h *AuthHTTPHandler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, resp)
 }
-
 
 // Login авторизует пользователя и выдаёт access/refresh токены.
 //
@@ -87,7 +85,6 @@ func (h *AuthHTTPHandler) Login(c *gin.Context) {
 		refreshTokenTTL,
 	)
 	if err != nil {
-		h.log.Error("login user error:", zap.Error(err))
 		if errors.Is(err, core_errors.ErrInvalidCredentials) {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid credentials",
@@ -109,5 +106,3 @@ func (h *AuthHTTPHandler) Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
-
-

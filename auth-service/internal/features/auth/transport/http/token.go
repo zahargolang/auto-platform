@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	core_errors "github.com/zosinkin/social_network/internal/core/errors"
-	"go.uber.org/zap"
 )
 
 
@@ -34,7 +33,6 @@ func (h *AuthHTTPHandler) RefreshToken(c *gin.Context) {
 
 	token, err := h.authService.RefreshAccessToken(c.Request.Context(), req.RefreshToken)
 	if err != nil {
-		h.log.Error("refresh token error:", zap.Error(err))
 		if errors.Is(err, core_errors.ErrInvalidToken) || errors.Is(err, core_errors.ErrExpiredToken) {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"Invalid or expired refresh token": err.Error(),

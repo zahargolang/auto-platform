@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
 	core_postgres_pool "github.com/zosinkin/social_network/internal/core/repository/postgres/pool"
-	"go.uber.org/zap"
 )
 
 
@@ -40,7 +39,6 @@ func (r *UserRepo) RegisterUser(
 
 	var userModel UserModel
 	if err := userModel.Scan(row); err != nil {
-		r.log.Error("UserModel scan error:", zap.String("op", op), zap.Error(err))
 		return core_domain.AuthUser{}, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -72,7 +70,6 @@ func (r *UserRepo) GetUserByPhoneNumber(
 
 	var userModel UserModel
 	if err := userModel.ScanWithPassword(row); err != nil {
-		r.log.Error("Scan with password error:", zap.String("op", op), zap.Error(err))
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
 			return core_domain.AuthUser{}, fmt.Errorf("%v: %w", op, err)
 		}
@@ -107,11 +104,10 @@ func (r *UserRepo) GetUserByID(
 
 	var userModel UserModel
 	if err := userModel.Scan(row); err != nil {
-		r.log.Error("user model scan error:", zap.String("op", op), zap.Error(err))
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
-			return core_domain.AuthUser{}, fmt.Errorf("%v: %v", op, err)
+			return core_domain.AuthUser{}, fmt.Errorf("%v: %w", op, err)
 		}
-		return core_domain.AuthUser{}, fmt.Errorf("%v: %v", op, err)
+		return core_domain.AuthUser{}, fmt.Errorf("%v: %w", op, err)
 	} 
 	userDomain := modelToUserDomain(userModel)
 

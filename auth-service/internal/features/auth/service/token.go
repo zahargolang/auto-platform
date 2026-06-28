@@ -43,12 +43,12 @@ func (s *Service) RefreshAccessToken(
 	op := "AuthService.Service.refreshAccessToken"
 	token, err := s.refreshTokenRepo.GetRefreshToken(ctx, refreshTokenString)
 	if err != nil {
-		s.log.Error("get refresh token error:", zap.String("op", op), zap.Error(err))
+		s.log.Debug("get refresh token error:", zap.String("op", op), zap.Error(err))
 		return "", core_errors.ErrInvalidToken
 	}
 
 	if token.Revoked {
-		s.log.Error("token is revoked:", zap.String("op", op), zap.Error(err))
+		s.log.Debug("token is revoked:", zap.String("op", op))
 		return "", core_errors.ErrInvalidToken
 	}
 	
@@ -77,7 +77,7 @@ func (s *Service) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	op := "AuthService.Service.ValidateToken"
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			s.log.Error("generate access token error:", zap.String("op", op), zap.Error(core_errors.ErrInvalidToken))
+			s.log.Debug("unexpected token signing method:", zap.String("op", op))
 			return nil, core_errors.ErrInvalidToken
 		}
 		return s.jwtSecret, nil
@@ -85,7 +85,7 @@ func (s *Service) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			s.log.Error("token is expired:", zap.String("op", op))
+			s.log.Debug("token is expired:", zap.String("op", op))
 			return nil, core_errors.ErrExpiredToken
 		}
 		return nil, core_errors.ErrInvalidToken

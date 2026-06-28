@@ -64,8 +64,8 @@ func main() {
 
 	//Init Repo
 	logger.Debug("Initializing feature", zap.String("feature", "auth"))
-	userRepo := auth_postgres_repository.NewUsersRepo(postgresPool, logger)
-	refreshRepo := auth_postgres_repository.NewRefreshTokenRepo(postgresPool, logger)
+	userRepo := auth_postgres_repository.NewUsersRepo(postgresPool)
+	refreshRepo := auth_postgres_repository.NewRefreshTokenRepo(postgresPool)
 
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	if jwtSecret == nil {
@@ -98,7 +98,7 @@ func main() {
 
 
 	//Init Handler
-	authHTTPHandler := auth_transport_http.NewAuthHTTPHandler(authService, logger)
+	authHTTPHandler := auth_transport_http.NewAuthHTTPHandler(authService)
 
 
 	
