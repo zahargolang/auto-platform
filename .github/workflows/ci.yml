@@ -31,6 +31,8 @@ jobs:
               - 'listing-service/**'
             user:
               - 'user-service/**'
+            messsenger:
+              - 'messenger-service/**'
 
   # ─────────────────────────────────────────
   # AUTH SERVICE
@@ -153,6 +155,46 @@ jobs:
         with:
           version: latest
           working-directory: listing-service
+
+      - name: Docker build
+        run: docker build -f cmd/Dockerfile .
+# ─────────────────────────────────────────
+# MESSENGER SERVICE
+# ─────────────────────────────────────────
+  messenger-service:
+    name: messenger-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.listing == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: messenger-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: messenger-service/go.sum
+
+      - name: Install librdkafka
+        run: sudo apt-get install -y librdkafka-dev
+
+      - name: Build
+        run: go build ./...
+
+      #тестирует сервис
+      - name: Test
+        run: go test ./... -cover
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: latest
+          working-directory: messenger-service
 
       - name: Docker build
         run: docker build -f cmd/Dockerfile .
