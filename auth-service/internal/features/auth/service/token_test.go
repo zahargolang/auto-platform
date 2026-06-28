@@ -28,7 +28,7 @@ func TestService_RefreshAccessToken_Success(t *testing.T) {
 		},
 	}
 	secret := []byte("secret")
-	svc := NewAuthService(userRepo, refreshRepo, secret, time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, refreshRepo, secret, time.Minute, &fakePublisher{})
 
 	accessToken, err := svc.RefreshAccessToken(context.Background(), stored.Token)
 	if err != nil {
@@ -47,7 +47,7 @@ func TestService_RefreshAccessToken_NotFound(t *testing.T) {
 			return nil, errors.New("not found")
 		},
 	}
-	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.RefreshAccessToken(context.Background(), "unknown-token")
 	if !errors.Is(err, core_errors.ErrInvalidToken) {
@@ -64,7 +64,7 @@ func TestService_RefreshAccessToken_Revoked(t *testing.T) {
 			return &revoked, nil
 		},
 	}
-	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.RefreshAccessToken(context.Background(), revoked.Token)
 	if !errors.Is(err, core_errors.ErrInvalidToken) {
@@ -80,7 +80,7 @@ func TestService_RefreshAccessToken_Expired(t *testing.T) {
 			return &expired, nil
 		},
 	}
-	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.RefreshAccessToken(context.Background(), expired.Token)
 	if !errors.Is(err, core_errors.ErrExpiredToken) {
@@ -102,7 +102,7 @@ func TestService_RefreshAccessToken_GetUserError(t *testing.T) {
 			return core_domain.AuthUser{}, repoErr
 		},
 	}
-	svc := NewAuthService(userRepo, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.RefreshAccessToken(context.Background(), stored.Token)
 	if err == nil {
@@ -113,7 +113,7 @@ func TestService_RefreshAccessToken_GetUserError(t *testing.T) {
 func TestService_ValidateToken_Success(t *testing.T) {
 	user := registeredUser(t, validPassword)
 	secret := []byte("secret")
-	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, secret, time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, secret, time.Minute, &fakePublisher{})
 
 	tokenString, err := svc.generateAccessToken(&user)
 	if err != nil {
@@ -136,7 +136,7 @@ func TestService_ValidateToken_Expired(t *testing.T) {
 	user := registeredUser(t, validPassword)
 	secret := []byte("secret")
 	// accessTokenTTL отрицательный — токен рождается уже просроченным.
-	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, secret, -time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, secret, -time.Minute, &fakePublisher{})
 
 	tokenString, err := svc.generateAccessToken(&user)
 	if err != nil {
@@ -151,8 +151,8 @@ func TestService_ValidateToken_Expired(t *testing.T) {
 
 func TestService_ValidateToken_WrongSecret(t *testing.T) {
 	user := registeredUser(t, validPassword)
-	signingSvc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret-a"), time.Minute, &fakePublisher{}, testLogger())
-	validatingSvc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret-b"), time.Minute, &fakePublisher{}, testLogger())
+	signingSvc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret-a"), time.Minute, &fakePublisher{})
+	validatingSvc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret-b"), time.Minute, &fakePublisher{})
 
 	tokenString, err := signingSvc.generateAccessToken(&user)
 	if err != nil {
@@ -166,7 +166,7 @@ func TestService_ValidateToken_WrongSecret(t *testing.T) {
 }
 
 func TestService_ValidateToken_Garbage(t *testing.T) {
-	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.ValidateToken("not-a-jwt-at-all")
 	if !errors.Is(err, core_errors.ErrInvalidToken) {
@@ -176,7 +176,7 @@ func TestService_ValidateToken_Garbage(t *testing.T) {
 
 func TestService_ValidateToken_WrongSigningMethod(t *testing.T) {
 	user := registeredUser(t, validPassword)
-	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(&fakeUserRepo{}, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	// "none"-алгоритм — классическая JWT-атака, которую ValidateToken должен отбивать.
 	token := jwt.NewWithClaims(jwt.SigningMethodNone, jwt.MapClaims{"sub": user.ID.String()})

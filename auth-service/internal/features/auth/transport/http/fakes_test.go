@@ -7,9 +7,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
+	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 )
+
+func testLogger() *core_logger.Logger {
+	return &core_logger.Logger{Logger: zap.NewNop()}
+}
 
 // fakeService — ручная fake-реализация Service (см. transport.go): каждый
 // тест задаёт только то поле-функцию, которое ему нужно.
@@ -46,12 +52,15 @@ func (f *fakeService) RefreshAccessToken(ctx context.Context, refreshToken strin
 
 // newTestContext строит *gin.Context с заданным телом запроса — без
 // поднятия реального HTTP-сервера, как это принято для юнит-тестов
-// gin-хендлеров.
+// gin-хендлеров. Логгер кладём в контекст запроса вручную — в реальном
+// сервере это делает middleware core_middleware.Logger, через которую
+// тестовый запрос здесь не проходит.
 func newTestContext(body string) (*gin.Context, *httptest.ResponseRecorder) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	req := httptest.NewRequest("POST", "/", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-	c.Request = req
+	ctx := core_logger.ToContext(req.Context(), testLogger())
+	c.Request = req.WithContext(ctx)
 	return c, w
 }

@@ -4,16 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"go.uber.org/zap"
-
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
-	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 	core_kafka "github.com/zosinkin/social_network/internal/core/transport/kafka"
 )
 
-func testLogger() *core_logger.Logger {
-	return &core_logger.Logger{Logger: zap.NewNop()}
-}
 
 // fakeUserRepo — ручная fake-реализация UserRepo: каждый тест задаёт только
 // то поле-функцию, которое ему нужно для конкретного сценария.

@@ -8,6 +8,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
+	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 	core_middleware "github.com/zosinkin/social_network/internal/core/transport/http/middleware"
 	auth_service "github.com/zosinkin/social_network/internal/features/auth/service"
 
@@ -54,10 +55,24 @@ type Service interface {
 }
 
 
-func (h *AuthHTTPHandler) InitRoutes(authService *auth_service.Service) *gin.Engine {
-	router := gin.Default()
+func (h *AuthHTTPHandler) InitRoutes(
+	authService *auth_service.Service,
+	log *core_logger.Logger,
+	allowedOrigins []string,
+) *gin.Engine {
+	// gin.New() (не gin.Default()) — иначе встроенные Logger()/Recovery()
+	// дублировали бы наши же Trace()/Panic() ниже.
+	router := gin.New()
 
-	
+	//регистрируем middleware в указанном порядке, это и есть порядок выполнения на входе
+	//каждый следующий вызывается через с.Next()
+	router.Use(
+		core_middleware.CORS(allowedOrigins),
+		core_middleware.RequestID(),
+		core_middleware.Logger(log),
+		core_middleware.Trace(),
+		core_middleware.Panic(),
+	)
 
 	routes := router.Group("/api/auth")
 	{

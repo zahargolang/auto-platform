@@ -6,7 +6,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
 	core_errors "github.com/zosinkin/social_network/internal/core/errors"
+	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 )
 
 type CreateUserResponse UserDTOResponse
@@ -40,9 +43,24 @@ func (h *AuthHTTPHandler) Register(c *gin.Context) {
 		req.Password,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"failed to create user": err.Error(),
-		})
+		log := core_logger.FromContext(c.Request.Context())
+		switch {
+		case errors.Is(err, core_errors.ErrPhoneNumberUse):
+			log.Debug("register: phone number already in use", zap.Error(err))
+			c.JSON(http.StatusConflict, gin.H{
+				"error": "phone number is already in use",
+			})
+		case errors.Is(err, core_errors.ErrInvalidArgument):
+			log.Debug("register: invalid argument", zap.Error(err))
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		default:
+			log.Error("register: unexpected error", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"failed to create user": err.Error(),
+			})
+		}
 		return
 	}
 	resp := UserDTOResponse{
@@ -85,13 +103,16 @@ func (h *AuthHTTPHandler) Login(c *gin.Context) {
 		refreshTokenTTL,
 	)
 	if err != nil {
+		log := core_logger.FromContext(c.Request.Context())
 		if errors.Is(err, core_errors.ErrInvalidCredentials) {
+			log.Debug("login: invalid credentials", zap.Error(err))
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid credentials",
 			})
 			c.Abort()
 			return
 		} else {
+			log.Error("login: unexpected error", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err,
 			})

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -93,7 +94,6 @@ func main() {
 		jwtSecret,
 		accessTokenTTL,
 		KafkaProducer,
-		logger,
 	)
 
 
@@ -103,7 +103,8 @@ func main() {
 
 	
 	//Init router
-	router := authHTTPHandler.InitRoutes(authService)
+	allowedOrigins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
+	router := authHTTPHandler.InitRoutes(authService, logger, allowedOrigins)
 
 
 	//Init Server

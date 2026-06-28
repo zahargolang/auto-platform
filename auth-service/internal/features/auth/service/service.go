@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	core_domain "github.com/zosinkin/social_network/internal/core/domain"
-	core_logger "github.com/zosinkin/social_network/internal/core/logger"
 	core_kafka "github.com/zosinkin/social_network/internal/core/transport/kafka"
 )
 
@@ -16,9 +15,7 @@ type Service struct {
 	jwtSecret        []byte
 	accessTokenTTL   time.Duration
 	publisher        EventPublisher
-	log              *core_logger.Logger
 }
-
 
 type UserRepo interface {
 	RegisterUser(
@@ -54,7 +51,6 @@ type RefreshTokenRepo interface {
 	) error
 }
 
-
 type EventPublisher interface {
 	Publish(
 		ctx context.Context,
@@ -62,21 +58,18 @@ type EventPublisher interface {
 	) error
 }
 
-
 func NewAuthService(
 	userRepo UserRepo,
 	refreshRepo RefreshTokenRepo,
 	jwtSecret []byte,
 	accesTokenTTL time.Duration,
 	publisher EventPublisher,
-	log *core_logger.Logger,
 ) *Service {
 	return &Service{
-		userRepo:         	userRepo,
-		refreshTokenRepo: 	refreshRepo,
-		jwtSecret:       	jwtSecret,
-		accessTokenTTL:   	accesTokenTTL,
-		publisher: 			publisher,
-		log:               	log,
+		userRepo:         userRepo,
+		refreshTokenRepo: refreshRepo,
+		jwtSecret:        jwtSecret,
+		accessTokenTTL:   accesTokenTTL,
+		publisher:        publisher,
 	}
 }

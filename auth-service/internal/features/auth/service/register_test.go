@@ -45,7 +45,7 @@ func TestService_Register_Success(t *testing.T) {
 		},
 	}
 
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, publisher, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, publisher)
 
 	user, err := svc.Register(context.Background(), validUsername, validPhone, validPassword)
 	if err != nil {
@@ -80,7 +80,7 @@ func TestService_Register_PhoneAlreadyInUse(t *testing.T) {
 			return core_domain.AuthUser{ID: core_domain.NewAuthUser("x", validPhone, "h").ID}, nil
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Register(context.Background(), validUsername, validPhone, validPassword)
 	if !errors.Is(err, core_errors.ErrPhoneNumberUse) {
@@ -95,7 +95,7 @@ func TestService_Register_RepoErrorOtherThanNotFound(t *testing.T) {
 			return core_domain.AuthUser{}, repoErr
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Register(context.Background(), validUsername, validPhone, validPassword)
 	if err == nil {
@@ -112,7 +112,7 @@ func TestService_Register_InvalidPassword(t *testing.T) {
 			return core_domain.AuthUser{}, phoneNotFoundErr()
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Register(context.Background(), validUsername, validPhone, "short")
 	if !errors.Is(err, core_errors.ErrInvalidArgument) {
@@ -126,7 +126,7 @@ func TestService_Register_InvalidUserData(t *testing.T) {
 			return core_domain.AuthUser{}, phoneNotFoundErr()
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	// телефон без "+" не проходит AuthUser.Validate(), хотя сам пароль валиден.
 	_, err := svc.Register(context.Background(), validUsername, "77001234567", validPassword)
@@ -145,7 +145,7 @@ func TestService_Register_RegisterUserError(t *testing.T) {
 			return core_domain.AuthUser{}, repoErr
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Register(context.Background(), validUsername, validPhone, validPassword)
 	if err == nil {
@@ -168,7 +168,7 @@ func TestService_Register_PublishError(t *testing.T) {
 			return publishErr
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, publisher, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, publisher)
 
 	// В отличие от messenger-service, здесь публикация в Kafka — НЕ
 	// best-effort: ошибка публикации проваливает весь Register(), хотя

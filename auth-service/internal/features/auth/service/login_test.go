@@ -29,7 +29,7 @@ func TestService_Login_Success(t *testing.T) {
 		},
 	}
 	secret := []byte("secret")
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, secret, time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, secret, time.Minute, &fakePublisher{})
 
 	token, err := svc.Login(context.Background(), validPhone, validPassword)
 	if err != nil {
@@ -48,7 +48,7 @@ func TestService_Login_UserNotFound(t *testing.T) {
 			return core_domain.AuthUser{}, phoneNotFoundErr()
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Login(context.Background(), validPhone, validPassword)
 	if !errors.Is(err, core_errors.ErrInvalidCredentials) {
@@ -63,7 +63,7 @@ func TestService_Login_WrongPassword(t *testing.T) {
 			return user, nil
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, err := svc.Login(context.Background(), validPhone, "WrongPassword1!")
 	if !errors.Is(err, core_errors.ErrInvalidCredentials) {
@@ -87,7 +87,7 @@ func TestService_LoginWithRefresh_Success(t *testing.T) {
 		},
 	}
 	secret := []byte("secret")
-	svc := NewAuthService(userRepo, refreshRepo, secret, time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, refreshRepo, secret, time.Minute, &fakePublisher{})
 
 	accessToken, refreshToken, err := svc.LoginWithRefresh(context.Background(), validPhone, validPassword, time.Hour)
 	if err != nil {
@@ -112,7 +112,7 @@ func TestService_LoginWithRefresh_WrongCredentials(t *testing.T) {
 			return core_domain.AuthUser{}, phoneNotFoundErr()
 		},
 	}
-	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, &fakeRefreshTokenRepo{}, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, _, err := svc.LoginWithRefresh(context.Background(), validPhone, validPassword, time.Hour)
 	if !errors.Is(err, core_errors.ErrInvalidCredentials) {
@@ -134,7 +134,7 @@ func TestService_LoginWithRefresh_CreateRefreshTokenError(t *testing.T) {
 			return core_domain.RefreshToken{}, repoErr
 		},
 	}
-	svc := NewAuthService(userRepo, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{}, testLogger())
+	svc := NewAuthService(userRepo, refreshRepo, []byte("secret"), time.Minute, &fakePublisher{})
 
 	_, _, err := svc.LoginWithRefresh(context.Background(), validPhone, validPassword, time.Hour)
 	if err == nil {

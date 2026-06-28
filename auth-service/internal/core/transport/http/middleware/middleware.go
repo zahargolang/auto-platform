@@ -15,8 +15,6 @@ const (
 	UserIDKey contextKey = "userID"
 )
 
-type Middleware func(http.Handler) http.Handler
-
 func AuthMiddleware(authService *auth_service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
