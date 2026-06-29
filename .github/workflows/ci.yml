@@ -18,10 +18,11 @@ jobs:
       user: ${{ steps.filter.outputs.user }}
       messenger: ${{ steps.filter.outputs.messenger }}
       frontend: ${{ steps.filter.outputs.frontend }}
-      storage: ${{ steps.filter.outputs.storage }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Filter changed paths
         uses: dorny/paths-filter@v3
@@ -38,8 +39,6 @@ jobs:
               - 'messenger-service/**'
             frontend:
               - 'frontend/**'
-            storage:
-              - 'storage-service/**'
   # ─────────────────────────────────────────
   # AUTH SERVICE
   # ─────────────────────────────────────────
@@ -48,9 +47,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.auth == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: auth-service
@@ -85,22 +81,9 @@ jobs:
           version: latest
           working-directory: auth-service
 
-      #билдит образ сервиса, тег = SHA коммита — неизменяемый, в отличие от latest
+      #билдит образ сервиса
       - name: Docker build
-        run: docker build -f cmd/Dockerfile -t ghcr.io/popugaichik1/auth-service:${{ github.sha }} .
-
-      #пушим только при реальном push в main, не на каждый PR
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/auth-service:${{ github.sha }}
+        run: docker build -f cmd/Dockerfile .
   # ────────────────────────────────────────
   # USER SERVICE
   # ─────────────────────────────────────────
@@ -109,9 +92,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.user == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: user-service
@@ -142,19 +122,7 @@ jobs:
           working-directory: user-service
 
       - name: Docker build
-        run: docker build -f cmd/Dockerfile -t ghcr.io/popugaichik1/user-service:${{ github.sha }} .
-
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/user-service:${{ github.sha }}
+        run: docker build -f cmd/Dockerfile .
 # ─────────────────────────────────────────
 # LISTING SERVICE.
 # ─────────────────────────────────────────
@@ -163,9 +131,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.listing == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: listing-service
@@ -197,19 +162,7 @@ jobs:
           working-directory: listing-service
 
       - name: Docker build
-        run: docker build -f cmd/Dockerfile -t ghcr.io/popugaichik1/listing-service:${{ github.sha }} .
-
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/listing-service:${{ github.sha }}
+        run: docker build -f cmd/Dockerfile .
 # ─────────────────────────────────────────
 # MESSENGER SERVICE
 # ─────────────────────────────────────────
@@ -218,9 +171,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.messenger == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: messenger-service
@@ -252,19 +202,7 @@ jobs:
           working-directory: messenger-service
 
       - name: Docker build
-        run: docker build -f cmd/Dockerfile -t ghcr.io/popugaichik1/messenger-service:${{ github.sha }} .
-
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/messenger-service:${{ github.sha }}
+        run: docker build -f cmd/Dockerfile .
 # ─────────────────────────────────────────
 # FRONTEND.
 # ─────────────────────────────────────────
@@ -273,9 +211,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: frontend
@@ -302,125 +237,4 @@ jobs:
         run: npm run lint
 
       - name: Docker build
-        run: docker build -f Dockerfile -t ghcr.io/popugaichik1/frontend:${{ github.sha }} .
-
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/frontend:${{ github.sha }}
-# ─────────────────────────────────────────
-# STORAGE SERVICE
-# ─────────────────────────────────────────
-  storage-service:
-    name: storage-service
-    needs: detect-changes
-    if: needs.detect-changes.outputs.storage == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    defaults:
-      run:
-        working-directory: storage-service
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25'
-          cache-dependency-path: storage-service/go.sum
-
-      # без librdkafka — сервис не использует Kafka, CGO_ENABLED=0
-
-      - name: Build
-        run: go build ./...
-
-      - name: Test
-        run: go test ./... -cover
-
-      - name: Lint
-        uses: golangci/golangci-lint-action@v7
-        with:
-          version: latest
-          working-directory: storage-service
-
-      - name: Docker build
-        run: docker build -f cmd/Dockerfile -t ghcr.io/popugaichik1/storage-service:${{ github.sha }} .
-
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: github.event_name == 'push'
-        run: docker push ghcr.io/popugaichik1/storage-service:${{ github.sha }}
-# ─────────────────────────────────────────
-# DEPLOY (GitOps): обновляет теги образов в values-production.yaml.
-# Сам helm upgrade здесь не делаем — ArgoCD сам подхватит этот коммит
-# из git и применит к кластеру (pull-модель, а не push).
-# ─────────────────────────────────────────
-  deploy:
-    name: deploy
-    needs: [auth-service, listing-service, user-service, messenger-service, storage-service, frontend]
-    if: always() && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
-      #обновляем тег только тем сервисам, чья джоба реально собралась и
-      #запушилась (success) — пропущенные (skipped, нет изменений) и
-      #упавшие (failure) не трогаем
-      - name: Update image tags for changed services
-        id: update
-        run: |
-          set -e
-          CHANGED=0
-          declare -A RESULTS=(
-            [auth]="${{ needs.auth-service.result }}"
-            [listing]="${{ needs.listing-service.result }}"
-            [user]="${{ needs.user-service.result }}"
-            [messenger]="${{ needs.messenger-service.result }}"
-            [storage]="${{ needs.storage-service.result }}"
-          )
-          for key in "${!RESULTS[@]}"; do
-            if [ "${RESULTS[$key]}" = "success" ]; then
-              yq -i ".services.${key}.image.tag = \"${{ github.sha }}\"" helm/auto-platform/values-production.yaml
-              CHANGED=1
-            fi
-          done
-          if [ "${{ needs.frontend.result }}" = "success" ]; then
-            yq -i ".frontend.image.tag = \"${{ github.sha }}\"" helm/auto-platform/values-production.yaml
-            CHANGED=1
-          fi
-          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
-
-      - name: Commit and push
-        if: steps.update.outputs.changed == '1'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add helm/auto-platform/values-production.yaml
-          git commit -m "Deploy: update image tags to ${{ github.sha }} [skip ci]"
-          git push
+        run: docker build -f Dockerfile .
