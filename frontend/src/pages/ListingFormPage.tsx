@@ -1,9 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { createListing, getListing, updateListing } from '../api/listings'
+import { uploadFile } from '../api/storage'
 import { ApiError } from '../lib/apiClient'
 import { BODY_TYPES, FUEL_TYPES, TRANSMISSION_TYPES } from '../lib/constants'
 import type { BodyType, FuelType, ListingStatus, TransmissionType } from '../types'
+
+const MAX_PHOTOS = 20
 
 // PATCH /api/listings/mine/:id принимает только подмножество полей
 // (UpdateListingRequest на бэкенде) — марка/модель/год/тип кузова/топлива/
@@ -27,6 +30,7 @@ interface FormState {
   city: string
   region: string
   status: ListingStatus
+  photoURLs: string[]
 }
 
 const EMPTY: FormState = {
@@ -45,6 +49,7 @@ const EMPTY: FormState = {
   city: '',
   region: '',
   status: 'active',
+  photoURLs: [],
 }
 
 export function ListingFormPage() {
@@ -55,6 +60,7 @@ export function ListingFormPage() {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -77,6 +83,7 @@ export function ListingFormPage() {
           city: l.city,
           region: l.region,
           status: l.status,
+          photoURLs: l.photo_urls,
         }),
       )
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Не удалось загрузить объявление'))
@@ -85,6 +92,33 @@ export function ListingFormPage() {
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  async function handleFilesSelected(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    if (files.length === 0) return
+
+    const room = MAX_PHOTOS - form.photoURLs.length
+    if (room <= 0) {
+      setError(`Можно загрузить не больше ${MAX_PHOTOS} фото`)
+      return
+    }
+
+    setError(null)
+    setUploading(true)
+    try {
+      const urls = await Promise.all(files.slice(0, room).map(uploadFile))
+      setForm((prev) => ({ ...prev, photoURLs: [...prev.photoURLs, ...urls] }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось загрузить фото')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function removePhoto(url: string) {
+    setForm((prev) => ({ ...prev, photoURLs: prev.photoURLs.filter((u) => u !== url) }))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -102,6 +136,7 @@ export function ListingFormPage() {
           color: form.color,
           city: form.city,
           region: form.region,
+          photo_urls: form.photoURLs,
         })
       } else {
         await createListing({
@@ -119,6 +154,7 @@ export function ListingFormPage() {
           engine_volume: Number(form.engineVolume),
           city: form.city,
           region: form.region,
+          photo_urls: form.photoURLs,
         })
       }
       navigate('/mine')
@@ -317,6 +353,37 @@ export function ListingFormPage() {
             </select>
           </label>
         )}
+
+        <div className="flex flex-col gap-2">
+          <span className="text-sm text-gray-600">
+            Фото ({form.photoURLs.length}/{MAX_PHOTOS})
+          </span>
+          {form.photoURLs.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {form.photoURLs.map((url) => (
+                <div key={url} className="relative h-20 w-20">
+                  <img src={url} alt="" className="h-20 w-20 rounded object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(url)}
+                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs text-white hover:bg-red-700"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            disabled={uploading || form.photoURLs.length >= MAX_PHOTOS}
+            onChange={handleFilesSelected}
+            className="text-sm"
+          />
+          {uploading && <span className="text-sm text-gray-500">Загружаем фото…</span>}
+        </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 

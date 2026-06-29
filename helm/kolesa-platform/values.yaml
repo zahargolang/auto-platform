@@ -172,6 +172,39 @@ services:
         requests: { cpu: 100m, memory: 128Mi }
         limits: { cpu: 500m, memory: 512Mi }
 
+  storage:
+    image:
+      repository: storage-service
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    containerPort: 7080
+    routePath: /api/storage
+    # выдача presigned URL — единственная защищённая операция
+    protectedPaths:
+      - /api/storage/mine
+    resources:
+      requests: { cpu: 25m, memory: 32Mi }
+      limits: { cpu: 100m, memory: 64Mi }
+    env:
+      HTTP_SHUTDOWN_TIMEOUT: "30s"
+      LOGGER_LEVEL: "INFO"
+      LOGGER_FOLDER: "/app/out/logs"
+      TIME_ZONE: "UTC"
+      # S3-совместимое Object Storage в Timeweb Cloud — не самохостится этим
+      # чартом (как и global.kafkaBrokers). Подставьте реальные значения
+      # после создания bucket'а в панели Timeweb (Cloud Storage > S3) —
+      # endpoint и регион там же, ключи доступа генерируются при создании.
+      S3_ENDPOINT: "https://CHANGE_ME.s3.twcstorage.ru"
+      S3_REGION: "ru-1"
+      S3_BUCKET: "kolesa-listing-photos"
+    secretEnv:
+      S3_ACCESS_KEY: "CHANGE_ME"
+      S3_SECRET_KEY: "CHANGE_ME"
+    # без своей БД — сервис только подписывает presigned-ссылки, ничего не хранит
+    postgres:
+      enabled: false
+
 frontend:
   enabled: true
   image:

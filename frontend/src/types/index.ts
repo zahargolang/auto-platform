@@ -45,6 +45,7 @@ export interface Listing {
   engine_volume: number
   city: string
   region: string
+  photo_urls: string[]
   created_at: string
   updated_at: string
 }
@@ -87,6 +88,12 @@ export interface ListingFormValues {
   engine_volume: number
   city: string
   region: string
+  photo_urls: string[]
+}
+
+export interface UploadURLResponse {
+  upload_url: string
+  public_url: string
 }
 
 export interface Conversation {

@@ -16,6 +16,7 @@ export function ListingDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [contacting, setContacting] = useState(false)
+  const [activePhoto, setActivePhoto] = useState(0)
 
   useEffect(() => {
     if (!id) return
@@ -59,7 +60,37 @@ export function ListingDetailPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">
+      {listing.photo_urls.length > 0 ? (
+        <div>
+          <img
+            src={listing.photo_urls[activePhoto]}
+            alt={listing.title}
+            className="aspect-video w-full rounded-lg bg-gray-100 object-cover"
+          />
+          {listing.photo_urls.length > 1 && (
+            <div className="mt-2 flex gap-2 overflow-x-auto">
+              {listing.photo_urls.map((url, i) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setActivePhoto(i)}
+                  className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded border-2 ${
+                    i === activePhoto ? 'border-blue-600' : 'border-transparent'
+                  }`}
+                >
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex aspect-video items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+          нет фото
+        </div>
+      )}
+
+      <h1 className="mt-4 text-2xl font-bold">
         {listing.make} {listing.model}, {listing.year}
       </h1>
       <p className="mt-2 text-3xl font-bold text-blue-600">{formatPrice(listing.price)}</p>

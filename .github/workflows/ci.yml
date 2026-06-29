@@ -18,6 +18,7 @@ jobs:
       user: ${{ steps.filter.outputs.user }}
       messenger: ${{ steps.filter.outputs.messenger }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      storage: ${{ steps.filter.outputs.storage }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +38,8 @@ jobs:
               - 'messenger-service/**'
             frontend:
               - 'frontend/**'
+            storage:
+              - 'storage-service/**'
   # ─────────────────────────────────────────
   # AUTH SERVICE
   # ─────────────────────────────────────────
@@ -236,3 +239,41 @@ jobs:
 
       - name: Docker build
         run: docker build -f Dockerfile .
+# ─────────────────────────────────────────
+# STORAGE SERVICE
+# ─────────────────────────────────────────
+  storage-service:
+    name: storage-service
+    needs: detect-changes
+    if: needs.detect-changes.outputs.storage == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: storage-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: storage-service/go.sum
+
+      # без librdkafka — сервис не использует Kafka, CGO_ENABLED=0
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test ./... -cover
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: latest
+          working-directory: storage-service
+
+      - name: Docker build
+        run: docker build -f cmd/Dockerfile .

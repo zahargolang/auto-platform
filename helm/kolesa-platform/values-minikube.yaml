@@ -22,6 +22,10 @@ services:
     image:
       tag: "1.0.0"
       pullPolicy: Never
+  storage:
+    image:
+      tag: "1.0.0"
+      pullPolicy: Never
 
 frontend:
   image: 
