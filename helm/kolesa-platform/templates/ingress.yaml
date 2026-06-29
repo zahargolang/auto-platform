@@ -36,6 +36,15 @@ spec:
                 port:
                   number: 80
           {{- end }}
+          {{- if .Values.frontend.enabled }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-frontend
+                port:
+                  number: 80
+          {{- end }}
 ---
 {{- $hasProtected := false }}
 {{- range $key, $svc := .Values.services }}
@@ -64,18 +73,16 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Request-ID $request_id;
     # и для саброзапроса auth_request на auth-url, чтобы auth-service залогировал
-    # проверку токена под тем же ID, что и сам запрос на backend. Плюс
-    # фолбэк для WS-хендшейка (/api/messenger/ws) — браузерный WebSocket API
-    # не умеет ставить заголовок Authorization, поэтому токен там идёт через
-    # ?token=. Если Authorization уже есть (обычный запрос) — фолбэк не
-    # срабатывает, заголовок просто прокидывается как есть.
+    # проверку токена под тем же ID, что и сам запрос на backend.
+    #
+    # Токен для WS-хендшейка (/api/messenger/ws) сюда НЕ прокидывается через
+    # $arg_token — внутри auth_request-сабреквеста $arg_*/$args относятся к
+    # URI самого сабреквеста (/_external-auth-...), а не к оригинальному
+    # запросу, так что query string там всегда пустая. auth-service достаёт
+    # токен сам из X-Original-URL (его nginx шлёт автоматически, без snippet) —
+    # см. auth-service/.../transport/http/validate.go: extractToken.
     nginx.ingress.kubernetes.io/auth-snippet: |
       proxy_set_header X-Request-ID $request_id;
-      set $auth_header $http_authorization;
-      if ($auth_header = '') {
-        set $auth_header "Bearer $arg_token";
-      }
-      proxy_set_header Authorization $auth_header;
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls.enabled }}

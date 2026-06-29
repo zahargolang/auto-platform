@@ -97,7 +97,7 @@ func (h *Handler) readLoop(ctx context.Context, userID uuid.UUID, conn *websocke
 				_ = conn.WriteJSON(ServerFrame{Type: "error", Payload: err.Error()})
 				continue
 			}
-			_ = conn.WriteJSON(ServerFrame{Type: "message_sent", Payload: msg})
+			_ = conn.WriteJSON(ServerFrame{Type: "message_sent", Payload: toMessagePayload(msg)})
 		default:
 			_ = conn.WriteJSON(ServerFrame{Type: "error", Payload: "unknown frame type"})
 		}

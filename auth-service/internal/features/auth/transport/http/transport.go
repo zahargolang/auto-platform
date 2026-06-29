@@ -62,7 +62,7 @@ func (h *AuthHTTPHandler) InitRoutes(
 ) *gin.Engine {
 	// gin.New() (не gin.Default()) — иначе встроенные Logger()/Recovery()
 	// дублировали бы наши же Trace()/Panic() ниже.
-	router := gin.New()
+	router := gin.Default()
 
 	//регистрируем middleware в указанном порядке, это и есть порядок выполнения на входе
 	//каждый следующий вызывается через с.Next()

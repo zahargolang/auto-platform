@@ -171,3 +171,14 @@ services:
       resources:
         requests: { cpu: 100m, memory: 128Mi }
         limits: { cpu: 500m, memory: 512Mi }
+
+frontend:
+  enabled: true
+  image:
+    repository: frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 100m, memory: 64Mi }
