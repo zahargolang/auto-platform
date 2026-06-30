@@ -1,0 +1,195 @@
+{{- range $key, $svc := .Values.services }}
+{{- if not $.Values.global.secretsManagedExternally }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}
+  labels:
+    {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 4 }}
+type: Opaque
+stringData:
+  {{- range $k, $v := $svc.secretEnv }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}
+  labels:
+    {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 4 }}
+spec:
+  replicas: {{ $svc.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $key }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 8 }}
+    spec:
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $key }}
+          image: {{ include "auto-platform.image" (dict "root" $ "svc" $svc) }}
+          imagePullPolicy: {{ $svc.image.pullPolicy }}
+          ports:
+            - containerPort: {{ $svc.containerPort }}
+            {{- if $svc.grpcPort }}
+            - containerPort: {{ $svc.grpcPort }}
+            {{- end }}
+          env:
+            - name: HTTP_ADDR
+              value: ":{{ $svc.containerPort }}"
+            {{- range $k, $v := $svc.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            {{- if $svc.postgres.enabled }}
+            - name: POSTGRES_HOST
+              value: {{ if $svc.postgres.external }}{{ $svc.postgres.host | quote }}{{ else }}{{ include "auto-platform.postgresName" (dict "root" $ "key" $key) }}{{ end }}
+            - name: POSTGRES_SSL_MODE
+              value: {{ $svc.postgres.sslMode | default "disable" | quote }}
+            - name: POSTGRES_USER
+              value: {{ $svc.postgres.username | quote }}
+            - name: POSTGRES_DB
+              value: {{ $svc.postgres.database | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "auto-platform.postgresName" (dict "root" $ "key" $key) }}
+                  key: password
+            {{- end }}
+            - name: KAFKA_BROKERS
+              value: {{ $.Values.global.kafkaBrokers | quote }}
+            - name: KAFKA_SASL_ENABLE
+              value: {{ $.Values.global.kafka.sasl.enable | quote }}
+            - name: KAFKA_SASL_MECHANISM
+              value: {{ $.Values.global.kafka.sasl.mechanism | quote }}
+            {{- if $.Values.global.kafka.sasl.enable }}
+            - name: KAFKA_SASL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-secret
+                  key: username
+            - name: KAFKA_SASL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-secret
+                  key: password
+            {{- end }}
+            {{- if $svc.callsListingService }}
+            - name: LISTING_GRPC_ADDR
+              value: "{{ include "auto-platform.appName" (dict "root" $ "key" "listing") }}:{{ $.Values.services.listing.grpcPort }}"
+            {{- end }}
+            {{- if (and $svc.redis $svc.redis.enabled) }}
+            - name: REDIS_HOST
+              value: {{ include "auto-platform.redisName" (dict "root" $) }}
+            - name: REDIS_PORT
+              value: {{ $svc.redis.port | quote }}
+            - name: REDIS_TIMEOUT
+              value: {{ $svc.redis.timeout | quote }}
+            {{- end }}
+            {{- range $k, $v := $svc.secretEnv }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}
+                  key: {{ $k }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: {{ $svc.routePath }}/health
+              port: {{ $svc.containerPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: {{ $svc.routePath }}/health
+              port: {{ $svc.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}
+  labels:
+    {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ $key }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ $svc.containerPort }}
+    {{- if $svc.grpcPort }}
+    - name: grpc
+      port: {{ $svc.grpcPort }}
+      targetPort: {{ $svc.grpcPort }}
+    {{- end }}
+{{- if $svc.postgres.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}-migrations
+  labels:
+    {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 4 }}
+data:
+  {{- range $path, $_ := $.Files.Glob (printf "files/migrations/%s/*.sql" $key) }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+  {{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}-migrate
+  labels:
+    {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        {{- include "auto-platform.labels" (dict "root" $ "key" $key) | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: migrate/migrate:v4.19.1
+          args:
+            - "-path"
+            - "/migrations"
+            - "-database"
+            - "postgres://{{ $svc.postgres.username }}:$(POSTGRES_PASSWORD)@{{ if $svc.postgres.external }}{{ $svc.postgres.host }}{{ else }}{{ include "auto-platform.postgresName" (dict "root" $ "key" $key) }}{{ end }}:5432/{{ $svc.postgres.database }}?sslmode={{ $svc.postgres.sslMode | default "disable" }}"
+            - "up"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "auto-platform.postgresName" (dict "root" $ "key" $key) }}
+                  key: password
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+      volumes:
+        - name: migrations
+          configMap:
+            name: {{ include "auto-platform.appName" (dict "root" $ "key" $key) }}-migrations
+{{- end }}
+{{- end }}
