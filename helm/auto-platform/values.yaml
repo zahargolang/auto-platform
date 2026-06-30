@@ -73,7 +73,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: auth_db
-      username: auth_user
+      username: gen_user
 
   listing:
     image:
@@ -106,7 +106,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: listing_db
-      username: listing_user
+      username: gen_user
 
   user:
     image:
@@ -135,7 +135,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: user_db
-      username: user_user
+      username: gen_user
 
   messenger:
     image:
@@ -168,7 +168,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: messenger_db
-      username: messenger_user
+      username: gen_user
 
   storage:
     image:
