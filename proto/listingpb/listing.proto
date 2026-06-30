@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package listingpb;
+
+option go_package = "internal/grpc/listingpb;listingpb";
+
+// Внутренний контракт listing-service -> messenger-service.
+// Зеркалит то, что messenger-service сегодня получает по HTTP
+// (internal/clients/listing): только идентификатор владельца объявления.
+service ListingService {
+  rpc GetListing(GetListingRequest) returns (GetListingResponse);
+}
+
+message GetListingRequest {
+  string id = 1;
+}
+
+message GetListingResponse {
+  string id = 1;
+  string user_id = 2;
+}

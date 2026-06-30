@@ -12,8 +12,11 @@ import (
 	core_logger "listing-service/internal/core/logger"
 	core_pgx_pool "listing-service/internal/core/repository/postgres/pool/pgx"
 	core_goredis_cache "listing-service/internal/core/repository/redis/goredis"
+	core_grpc_server "listing-service/internal/core/transport/grpc/server"
 	core_http_server "listing-service/internal/core/transport/http/server"
 	core_kafka "listing-service/internal/core/transport/kafka"
+	listings_grpc "listing-service/internal/grpc"
+	"listing-service/internal/grpc/listingpb"
 	listings_repository "listing-service/internal/features/listings/repository"
 	listings_service "listing-service/internal/features/listings/service"
 	listings_transport_http "listing-service/internal/features/listings/transport/http"
@@ -65,7 +68,7 @@ func main() {
 
 
 	//Init Redis cache
-	logger.Debug("initializing redic client")
+	logger.Debug("initializing redis client")
 	redisClient, err := core_goredis_cache.NewClient(ctx, core_goredis_cache.NewConfigMust())
 	if err != nil {
 		logger.Fatal("failed to init redis client", zap.Error(err))
@@ -93,6 +96,16 @@ func main() {
 		logger,
 		router,
 	)
+
+	// Init gRPC Server
+	grpcSrv := core_grpc_server.NewGRPCServer(core_grpc_server.NewConfigMust(), logger)
+	listingpb.RegisterListingServiceServer(grpcSrv.Server(), listings_grpc.NewServer(svc))
+
+	go func() {
+		if err := grpcSrv.Run(ctx); err != nil {
+			logger.Fatal("gRPC server error", zap.Error(err))
+		}
+	}()
 
 	logger.Info("starting listing-service", zap.String("addr", os.Getenv("HTTP_ADDR")))
 
