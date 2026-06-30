@@ -2,7 +2,6 @@ package core_pgx_pool
 
 import (
 	"context"
-	"net/url"
 	"fmt"
 	"time"
 
@@ -16,19 +15,14 @@ type Pool struct {
 }
 
 func NewPool(ctx context.Context, config Config) (*Pool, error) {
-	u := &url.URL{
-		Scheme:   "postgres",
-		User:     url.UserPassword(config.User, config.Password),
-		Host:     config.Host + ":" + config.Port,
-		Path:     config.Database,
-		RawQuery: "sslmode=" + config.SSLMode,
-	}
-	connectionString := u.String()
-
-	pgxconfig, err := pgxpool.ParseConfig(connectionString)
+	pgxconfig, err := pgxpool.ParseConfig(fmt.Sprintf(
+		"host=%s port=%s user=%s dbname=%s sslmode=%s",
+		config.Host, config.Port, config.User, config.Database, config.SSLMode,
+	))
 	if err != nil {
 		return nil, fmt.Errorf("parse pgxconfig: %w", err)
 	}
+	pgxconfig.ConnConfig.Password = config.Password
 
 	pool, err := pgxpool.NewWithConfig(ctx, pgxconfig)
 	if err != nil {
