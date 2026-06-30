@@ -80,6 +80,7 @@ services:
       pullPolicy: IfNotPresent
     replicaCount: 3
     containerPort: 6060
+    grpcPort: 6061
     routePath: /api/listings
     protectedPaths:
       - /api/listings/mine
@@ -160,8 +161,8 @@ services:
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
       POSTGRES_TIMEOUT: "10s"
-    # включает инъекцию LISTING_SERVICE_URL в app.yaml — единственный
-    # синхронный поход в другой сервис (узнать продавца при создании треда)
+    # включает инъекцию LISTING_GRPC_ADDR в app.yaml — единственный
+    # синхронный поход в другой сервис (узнать продавца при создании треда, gRPC)
     callsListingService: true
     postgres:
       enabled: true
