@@ -16,6 +16,7 @@ ingress:
 global:
   imagePullSecrets:
     - name: ghcr-pull-secret
+  kafkaBrokers: "192.168.0.7:9092"
   kafka:
     sasl:
       enable: true
