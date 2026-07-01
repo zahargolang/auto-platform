@@ -60,7 +60,7 @@ services:
       ALLOWED_ORIGINS: "*"
       ACCESS_TOKEN_EXPIRY: "15m"
       REFRESH_TOKEN_EXPIRY: "168h"
-      LOGGER_LEVEL: "INFO"
+      LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
@@ -91,7 +91,7 @@ services:
       limits: { cpu: 250m, memory: 256Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      LOGGER_LEVEL: "INFO"
+      LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
@@ -125,7 +125,7 @@ services:
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       ALLOWED_ORIGINS: "*"
-      LOGGER_LEVEL: "INFO"
+      LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
@@ -155,7 +155,7 @@ services:
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       ALLOWED_ORIGINS: "*"
-      LOGGER_LEVEL: "INFO"
+      LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
@@ -187,7 +187,7 @@ services:
       limits: { cpu: 100m, memory: 64Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      LOGGER_LEVEL: "INFO"
+      LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
       # S3-совместимое Object Storage в Timeweb Cloud — не самохостится этим
