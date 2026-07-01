@@ -32,35 +32,35 @@ global:
 services:
   auth:
     image:
-      tag: "077e4f9a7f192b4d0be00f68609b161b99e60ff3"
+      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
     postgres:
       external: true
       host: "186.246.8.193"
       sslMode: "require"
   listing:
     image:
-      tag: "077e4f9a7f192b4d0be00f68609b161b99e60ff3"
+      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
     postgres:
       external: true
       host: "186.246.8.193"
       sslMode: "require"
   user:
     image:
-      tag: "077e4f9a7f192b4d0be00f68609b161b99e60ff3"
+      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
     postgres:
       external: true
       host: "186.246.8.193"
       sslMode: "require"
   messenger:
     image:
-      tag: "077e4f9a7f192b4d0be00f68609b161b99e60ff3"
+      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
     postgres:
       external: true
       host: "186.246.8.193"
       sslMode: "require"
   storage:
     image:
-      tag: "4d15a6500e9a7b413060ed0980fe9522aa4e776c"
+      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
 frontend:
   image:
     tag: "afaec57d8f8da96d3cea499b6946c2f940526511"
