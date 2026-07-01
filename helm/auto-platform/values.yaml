@@ -61,7 +61,7 @@ services:
       ACCESS_TOKEN_EXPIRY: "15m"
       REFRESH_TOKEN_EXPIRY: "168h"
       LOGGER_LEVEL: "INFO"
-      LOGGER_FOLDER: ""
+      LOGGER_FOLDER: "/app/out/logs"
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
       POSTGRES_TIMEOUT: "5s"
@@ -92,7 +92,7 @@ services:
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       LOGGER_LEVEL: "INFO"
-      LOGGER_FOLDER: ""
+      LOGGER_FOLDER: "/app/out/logs"
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
       POSTGRES_TIMEOUT: "10s"
@@ -126,7 +126,7 @@ services:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       ALLOWED_ORIGINS: "*"
       LOGGER_LEVEL: "INFO"
-      LOGGER_FOLDER: ""
+      LOGGER_FOLDER: "/app/out/logs"
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
       POSTGRES_TIMEOUT: "10s"
@@ -156,7 +156,7 @@ services:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       ALLOWED_ORIGINS: "*"
       LOGGER_LEVEL: "INFO"
-      LOGGER_FOLDER: ""
+      LOGGER_FOLDER: "/app/out/logs"
       TIME_ZONE: "UTC"
       POSTGRES_PORT: "5432"
       POSTGRES_TIMEOUT: "10s"
@@ -188,7 +188,7 @@ services:
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       LOGGER_LEVEL: "INFO"
-      LOGGER_FOLDER: ""
+      LOGGER_FOLDER: "/app/out/logs"
       TIME_ZONE: "UTC"
       # S3-совместимое Object Storage в Timeweb Cloud — не самохостится этим
       # чартом (как и global.kafkaBrokers). Подставьте реальные значения
