@@ -73,7 +73,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: auth_db
-      username: pg_user
+      username: app_user
 
   listing:
     image:
@@ -107,7 +107,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: listing_db
-      username: pg_user
+      username: app_user
 
   user:
     image:
@@ -136,7 +136,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: user_db
-      username: pg_user
+      username: app_user
 
   messenger:
     image:
@@ -169,7 +169,7 @@ services:
       host: ""            
       sslMode: "disable"   
       database: messenger_db
-      username: pg_user
+      username: app_user
 
   storage:
     image:
