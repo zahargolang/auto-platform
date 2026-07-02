@@ -2,5 +2,5 @@ package core_kafka
 
 
 const (
-	RegisterUserConsumerGroup = "user.register"
+	RegisterUserConsumerGroup = "user.register-group"
 )
