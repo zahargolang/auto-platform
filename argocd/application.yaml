@@ -22,7 +22,7 @@ spec:
       valueFiles:
         - values.yaml
         - values-production.yaml
-        - values-production-self-hosted.yaml
+        #- values-production-self-hosted.yaml
 
   destination:
     server: https://kubernetes.default.svc
