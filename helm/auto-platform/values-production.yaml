@@ -35,7 +35,7 @@ global:
 services:
   auth:
     image:
-      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
+      tag: "4a6820c2293752c2c33918b5453be3b2c73b5bad"
     postgres:
       external: true
       host: "192.168.0.4"
