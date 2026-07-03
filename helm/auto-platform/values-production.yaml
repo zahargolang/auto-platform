@@ -46,7 +46,7 @@ services:
       sslMode: "require"
   user:
     image:
-      tag: "d066ec5febc051b7692d5969b3426a8da5d2a242"
+      tag: "bf8b15fa244510bf6f6280c811c3acfdc84ff611"
     postgres:
       external: true
       host: "192.168.0.4"
