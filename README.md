@@ -4,31 +4,7 @@
 
 ## Архитектура
 
-```
-                        ┌─────────────────────────────────────────────────┐
-                        │                 ingress-nginx                   │
-                        │   /api/auth  /api/listings  /api/user  ...      │
-                        │          auth_request → auth-service            │
-                        └─────────┬───────┬───────┬───────┬──────────────┘
-                                  │       │       │       │
-              ┌───────────────────┼───────┼───────┼───────┼──────────────┐
-              │                   ▼       ▼       ▼       ▼              │
-              │  ┌────────────┐ ┌──────┐ ┌──────┐ ┌─────────┐ ┌───────┐│
-              │  │auth-service│ │list- │ │user- │ │messenger│ │storage││
-              │  │ JWT/bcrypt │ │ing   │ │serv. │ │-service │ │-serv. ││
-              │  └─────┬──────┘ └──┬───┘ └──┬───┘ └────┬────┘ └───────┘│
-              │        │           │  gRPC   │           │               │
-              │        │           └─────────┘           │               │
-              │        │                                 │               │
-              │   ┌────▼────┐  ┌──────────┐  ┌─────────▼──┐            │
-              │   │Postgres │  │  Redis   │  │  Postgres  │            │
-              │   │(auth_db)│  │  cache   │  │(messenger) │            │
-              │   └─────────┘  └──────────┘  └────────────┘            │
-              │                                                          │
-              │              Apache Kafka (async events)                 │
-              │         user.register → user-service consumer            │
-              └──────────────────────────────────────────────────────────┘
-```
+<img width="1052" height="794" alt="изображение" src="https://github.com/user-attachments/assets/583c31d2-78ca-4da1-843f-b066a3c34d8d" />
 
 ### Сервисы
 
