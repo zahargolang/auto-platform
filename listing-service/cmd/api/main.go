@@ -88,11 +88,12 @@ func main() {
 
 	// Init Handler & Router
 	handler := listings_transport_http.NewListingsHandler(svc)
-	router := handler.InitRoutes(logger)
+	httpCfg := core_http_server.NewConfigMust()
+	router := handler.InitRoutes(logger, httpCfg.AllowedOrigins)
 
 	// Init HTTP Server
 	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
+		httpCfg,
 		logger,
 		router,
 	)

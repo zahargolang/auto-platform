@@ -101,13 +101,14 @@ func main() {
 
 
 	
-	//Init router
-	router := authHTTPHandler.InitRoutes(logger)
+	httpCfg := core_http_server.NewConfigMust()
 
+	//Init router
+	router := authHTTPHandler.InitRoutes(logger, httpCfg.AllowedOrigins)
 
 	//Init Server
 	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
+		httpCfg,
 		logger,
 		router,
 	)

@@ -47,11 +47,12 @@ func main() {
 		logger.Fatal("failed to init storage service", zap.Error(err))
 	}
 
+	httpCfg := core_http_server.NewConfigMust()
 	handler := transport_http.NewHandler(svc)
-	router := handler.InitRoutes(logger)
+	router := handler.InitRoutes(logger, httpCfg.AllowedOrigins)
 
 	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
+		httpCfg,
 		logger,
 		router,
 	)

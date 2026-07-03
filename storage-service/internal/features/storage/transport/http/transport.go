@@ -23,10 +23,11 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) InitRoutes(log *core_logger.Logger) *gin.Engine {
+func (h *Handler) InitRoutes(log *core_logger.Logger, allowedOrigins []string) *gin.Engine {
 	router := gin.New()
 
 	router.Use(
+		core_middleware.CORS(allowedOrigins),
 		core_middleware.RequestID(),
 		core_middleware.Logger(log),
 		core_middleware.Trace(),

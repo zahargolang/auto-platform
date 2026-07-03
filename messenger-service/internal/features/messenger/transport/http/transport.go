@@ -40,11 +40,13 @@ func NewHandler(service Service, ws WSHandler) *Handler {
 
 func (h *Handler) InitRoutes(
 	log *core_logger.Logger,
+	allowedOrigins []string,
 ) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(
-		core_middleware.RequestID(), 
+		core_middleware.CORS(allowedOrigins),
+		core_middleware.RequestID(),
 		core_middleware.Logger(log),
 		core_middleware.Trace(),
 		core_middleware.Panic(),

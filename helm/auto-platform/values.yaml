@@ -57,7 +57,7 @@ services:
       limits: { cpu: 250m, memory: 256Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       ACCESS_TOKEN_EXPIRY: "15m"
       REFRESH_TOKEN_EXPIRY: "168h"
       LOGGER_LEVEL: "DEBUG"
@@ -91,7 +91,7 @@ services:
       limits: { cpu: 250m, memory: 256Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
@@ -125,7 +125,7 @@ services:
       limits: { cpu: 250m, memory: 256Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
@@ -155,7 +155,7 @@ services:
       limits: { cpu: 250m, memory: 256Mi }
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
-      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
@@ -195,7 +195,7 @@ services:
       # чартом (как и global.kafkaBrokers). Подставьте реальные значения
       # после создания bucket'а в панели Timeweb (Cloud Storage > S3) —
       # endpoint и регион там же, ключи доступа генерируются при создании.
-      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       S3_ENDPOINT: "https://s3.twcstorage.ru"
       S3_REGION: "ru-1"
       S3_BUCKET: "1568a230-09f2-461f-8c8a-61e3de05bc1e"

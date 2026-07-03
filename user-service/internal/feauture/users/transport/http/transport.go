@@ -43,10 +43,12 @@ type Service interface {
 
 func (h *HTTPHandler) InitRoutes(
 	log *core_logger.Logger,
+	allowedOrigins []string,
 ) *gin.Engine {
 	router := gin.Default()
 	
 	router.Use(
+		core_middleware.CORS(allowedOrigins),
 		core_middleware.RequestID(),
 		core_middleware.Logger(log),
 		core_middleware.Trace(),

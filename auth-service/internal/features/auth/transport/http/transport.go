@@ -59,6 +59,7 @@ type Service interface {
 
 func (h *AuthHTTPHandler) InitRoutes(
 	log *core_logger.Logger,
+	allowedOrigins []string,
 ) *gin.Engine {
 	// gin.New() (не gin.Default()) — иначе встроенные Logger()/Recovery()
 	// дублировали бы наши же Trace()/Panic() ниже.
@@ -67,6 +68,7 @@ func (h *AuthHTTPHandler) InitRoutes(
 	//регистрируем middleware в указанном порядке, это и есть порядок выполнения на входе
 	//каждый следующий вызывается через с.Next()
 	router.Use(
+		core_middleware.CORS(allowedOrigins),
 		core_middleware.RequestID(),
 		core_middleware.Logger(log),
 		core_middleware.Trace(),

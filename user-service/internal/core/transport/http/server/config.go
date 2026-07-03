@@ -21,7 +21,7 @@ type Config struct {
 
 	// AllowedOrigins — список разрешённых origins для CORS.
 	// envconfig парсит строку с запятой как слайс: "http://a.com,http://b.com".
-
+	AllowedOrigins []string `envconfig:"ALLOWED_ORIGINS"`
 }
 
 // NewConfig читает конфигурацию сервера из переменных окружения.

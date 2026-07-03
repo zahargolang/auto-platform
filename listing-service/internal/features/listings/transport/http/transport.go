@@ -37,6 +37,7 @@ func NewListingsHandler(service Service) *ListingsHandler {
 
 func (h *ListingsHandler) InitRoutes(
 	log *core_logger.Logger,
+	allowedOrigins []string,
 ) *gin.Engine {
 	router := gin.Default()
 	// RequestID переиспользует $request_id, выставленный nginx Ingress (см.
@@ -44,7 +45,8 @@ func (h *ListingsHandler) InitRoutes(
 	// одним ID и в auth-service, и здесь. Logger кладёт его в контекст,
 	// чтобы достать через core_logger.FromContext в хендлерах.
 	router.Use(
-		core_middleware.RequestID(), 
+		core_middleware.CORS(allowedOrigins),
+		core_middleware.RequestID(),
 		core_middleware.Logger(log),
 		core_middleware.Trace(),
 		core_middleware.Panic(),

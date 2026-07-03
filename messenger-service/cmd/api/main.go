@@ -121,13 +121,15 @@ func main() {
 		}
 	}()
 
+	httpCfg := core_http_server.NewConfigMust()
+
 	// Init HTTP Handler & Router
 	httpHandler := messenger_transport_http.NewHandler(svc, wsHandler)
-	router := httpHandler.InitRoutes(logger)
+	router := httpHandler.InitRoutes(logger, httpCfg.AllowedOrigins)
 
 	// Init HTTP Server
 	httpServer := core_http_server.NewHTTPServer(
-		core_http_server.NewConfigMust(),
+		httpCfg,
 		logger,
 		router,
 	)
