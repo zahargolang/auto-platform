@@ -1,4 +1,4 @@
-CREATE SCHEMA messengerservice;
+CREATE SCHEMA IF NOT EXISTS messengerservice;
 
 CREATE TABLE IF NOT EXISTS messengerservice.conversations (
     id              UUID PRIMARY KEY,
