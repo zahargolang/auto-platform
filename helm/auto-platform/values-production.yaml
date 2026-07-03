@@ -10,6 +10,9 @@
 # IP ingress-nginx в кластере Timeweb
 ingress:
   host: "auto-platfrom.ru"
+  tls:
+    enabled: true
+    secretName: "auto-platfrom-tls"
 # Пакеты в GHCR приватные по умолчанию — пуллить их из кластера нужно по
 # секрету. Сам секрет нужно создать в кластере руками (см. инструкцию),
 # здесь только подключаем его по имени.
