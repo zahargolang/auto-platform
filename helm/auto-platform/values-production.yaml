@@ -56,7 +56,7 @@ services:
       username: gen_user
   messenger:
     image:
-      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
+      tag: "197fe8e4c6155a8b3efa597f63e57408319f683b"
     postgres:
       external: true
       host: "192.168.0.4"
