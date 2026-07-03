@@ -37,6 +37,7 @@ services:
       external: true
       host: "192.168.0.4"
       sslMode: "require"
+      username: gen_user
   listing:
     image:
       tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
@@ -44,6 +45,7 @@ services:
       external: true
       host: "192.168.0.4"
       sslMode: "require"
+      username: gen_user
   user:
     image:
       tag: "1a623b142246d76f45d42ef099a9030d9f0e45a8"
@@ -51,6 +53,7 @@ services:
       external: true
       host: "192.168.0.4"
       sslMode: "require"
+      username: gen_user
   messenger:
     image:
       tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
@@ -58,6 +61,7 @@ services:
       external: true
       host: "192.168.0.4"
       sslMode: "require"
+      username: gen_user
   storage:
     image:
       tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
