@@ -43,7 +43,7 @@ services:
       username: gen_user
   listing:
     image:
-      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
+      tag: "17796d172cd35dc736b43014d5372a68f516d66d"
     postgres:
       external: true
       host: "192.168.0.4"
@@ -59,7 +59,7 @@ services:
       username: gen_user
   messenger:
     image:
-      tag: "197fe8e4c6155a8b3efa597f63e57408319f683b"
+      tag: "17796d172cd35dc736b43014d5372a68f516d66d"
     postgres:
       external: true
       host: "192.168.0.4"
@@ -67,7 +67,7 @@ services:
       username: gen_user
   storage:
     image:
-      tag: "92fce456a0763ad586f04c42fbd3cfd242b31f0f"
+      tag: "17796d172cd35dc736b43014d5372a68f516d66d"
 frontend:
   image:
     tag: "afaec57d8f8da96d3cea499b6946c2f940526511"
