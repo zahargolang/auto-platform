@@ -70,5 +70,5 @@ services:
       tag: "17796d172cd35dc736b43014d5372a68f516d66d"
 frontend:
   image:
-    tag: "afaec57d8f8da96d3cea499b6946c2f940526511"
+    tag: "ffd3cb98e5df8e1fc52dcd7cc74cc9c26e113d1c"
   enabled: false
