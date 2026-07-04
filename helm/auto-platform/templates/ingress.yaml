@@ -64,6 +64,13 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/auth-url: "http://{{ include "auto-platform.appName" (dict "root" $ "key" "auth") }}.{{ .Release.Namespace }}.svc.cluster.local/api/auth/validate"
     nginx.ingress.kubernetes.io/auth-response-headers: "X-User-Id"
+    # CORS preflight (OPTIONS) не несёт Authorization заголовка — браузер так не делает.
+    # auth-snippet возвращает 200 для OPTIONS до того как nginx идёт в auth-service,
+    # тогда запрос доходит до сервиса и его CORS-middleware отвечает корректно.
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      if ($request_method = OPTIONS) {
+        return 200;
+      }
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls.enabled }}
