@@ -147,6 +147,7 @@ services:
     env:
       HTTP_SHUTDOWN_TIMEOUT: "30s"
       HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
+      ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       LOGGER_LEVEL: "DEBUG"
       LOGGER_FOLDER: ""
       TIME_ZONE: "UTC"
