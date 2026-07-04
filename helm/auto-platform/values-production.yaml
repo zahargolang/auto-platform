@@ -4,7 +4,6 @@ ingress:
   tls:
     enabled: true
     secretName: "auto-platfrom-tls"
-
 global:
   imagePullSecrets:
     - name: ghcr-pull-secret
@@ -15,7 +14,6 @@ global:
       mechanism: "SCRAM-SHA-512"
       securityProtocol: "SASL_PLAINTEXT"
   secretsManagedExternally: true
-
 services:
   auth:
     image:
@@ -54,5 +52,5 @@ services:
       tag: "17796d172cd35dc736b43014d5372a68f516d66d"
 frontend:
   image:
-    tag: "ffd3cb98e5df8e1fc52dcd7cc74cc9c26e113d1c"
+    tag: "82f191bc64004bab9aa061c2be34b8a014601f37"
   enabled: false
