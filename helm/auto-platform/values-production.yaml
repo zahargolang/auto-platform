@@ -1,21 +1,10 @@
-# Оверрай для реального кластера в Timeweb Cloud. Накладывается поверх
-# values.yaml (который уже содержит дефолты, рассчитанные на прод —
-# imageRegistry: ghcr.io/popugaichik1, host: auto-platform.example.com):
-#
-# Управляется ArgoCD (Application смотрит на этот файл) — после установки
-# вручную (см. инструкцию) дальнейшие helm upgrade делать не нужно, ArgoCD
-# сам подтягивает изменения из git.
 
-# CHANGE_ME: ваш реальный домен, на который смотрит DNS A-запись на внешний
-# IP ingress-nginx в кластере Timeweb
 ingress:
   host: "auto-platfrom.ru"
   tls:
     enabled: true
     secretName: "auto-platfrom-tls"
-# Пакеты в GHCR приватные по умолчанию — пуллить их из кластера нужно по
-# секрету. Сам секрет нужно создать в кластере руками (см. инструкцию),
-# здесь только подключаем его по имени.
+
 global:
   imagePullSecrets:
     - name: ghcr-pull-secret
@@ -25,13 +14,8 @@ global:
       enable: true
       mechanism: "SCRAM-SHA-512"
       securityProtocol: "SASL_PLAINTEXT"
-  # Secret'ы (JWT_SECRET, пароли Postgres, S3-ключи) кладёт Sealed Secrets
-  # controller из templates/sealed-secrets.yaml — сам чарт их не создаёт
-  # из CHANGE_ME-значений в values.yaml.
   secretsManagedExternally: true
-# Теги образов — CI обновляет их автоматически после каждого успешного
-# билда конкретного сервиса (см. .github/workflows/ci.yml, джоба deploy).
-# Начальное значение здесь не важно, оно будет перезаписано первым деплоем.
+
 services:
   auth:
     image:

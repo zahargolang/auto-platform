@@ -1,5 +1,4 @@
-# Образы публикуются CI в GitHub Container Registry. Поменяйте на свой
-# owner/repo либо передавайте через --set global.imageRegistry=...
+
 global:
   imageRegistry: "ghcr.io/popugaichik1"
   imagePullSecrets: []
@@ -13,13 +12,7 @@ global:
     sasl:
       enable: false
       mechanism: "SCRAM-SHA-512"
-  # один образ для всех трёх Postgres-инстансов — в docker-compose у каждого
-  # сервиса свой контейнер, но версия везде одна и та же
   postgresImage: "postgres:18.1-bookworm"
-  # false — Secret-объекты (JWT_SECRET, пароли Postgres, S3-ключи) создаёт
-  # сам чарт из значений выше/secretEnv. true (см. values-production.yaml) —
-  # чарт эти Secret'ы вообще не создаёт, ожидает, что их положит туда
-  # Sealed Secrets controller (см. templates/sealed-secrets.yaml)
   secretsManagedExternally: false
 
 ingress:
@@ -35,9 +28,7 @@ redis:
   enabled: true
   image: "redis:7.4-alpine"
   resources:
-    #минимум
     requests: { cpu: 25m, memory: 32Mi }
-    #максимум
     limits: { cpu: 100m, memory: 128Mi }
 
 services:
