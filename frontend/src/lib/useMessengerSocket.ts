@@ -29,8 +29,10 @@ export function useMessengerSocket(onFrame: (frame: ServerFrame) => void) {
       const { accessToken } = getTokens()
       if (!accessToken || cancelled) return
 
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-      const url = `${protocol}://${window.location.host}/api/messenger/ws?token=${encodeURIComponent(accessToken)}`
+      const apiBase = import.meta.env.VITE_API_URL ?? window.location.origin
+      const wsProtocol = apiBase.startsWith('https') ? 'wss' : 'ws'
+      const wsBase = apiBase.replace(/^https?/, wsProtocol)
+      const url = `${wsBase}/api/messenger/ws?token=${encodeURIComponent(accessToken)}`
       const ws = new WebSocket(url)
       wsRef.current = ws
 
