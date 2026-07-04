@@ -189,7 +189,7 @@ services:
       HTTP_ALLOWED_ORIGINS: "https://auto-platform-nine.vercel.app"
       S3_ENDPOINT: "https://s3.twcstorage.ru"
       S3_REGION: "ru-1"
-      S3_BUCKET: "1568a230-09f2-461f-8c8a-61e3de05bc1e"
+      S3_BUCKET: "19aaa283-acf2-4cef-a707-a5432c42a031"
     secretEnv:
       S3_ACCESS_KEY: "CHANGE_ME"
       S3_SECRET_KEY: "CHANGE_ME"
