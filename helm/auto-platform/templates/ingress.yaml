@@ -72,6 +72,7 @@ metadata:
       add_header 'Access-Control-Allow-Origin' $http_origin always;
       proxy_hide_header 'Access-Control-Allow-Origin';
       if ($request_method = OPTIONS) {
+        add_header 'Access-Control-Allow-Origin' $http_origin always;
         add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, OPTIONS' always;
         add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
         return 204;
