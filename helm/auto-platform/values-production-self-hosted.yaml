@@ -1,10 +1,3 @@
-# Оверрай для кластера с БД внутри Kubernetes (без Managed PostgreSQL Timeweb).
-# Накладывается поверх values.yaml вместо values-production.yaml.
-#
-# ArgoCD: поменяй valueFiles в argocd/application.yaml:
-#   - values.yaml
-#   - values-production-self-hosted.yaml
-
 ingress:
   host: "auto-platform.kuber-cluster.website"
 

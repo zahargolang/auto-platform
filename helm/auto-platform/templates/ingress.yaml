@@ -64,19 +64,15 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/auth-url: "http://{{ include "auto-platform.appName" (dict "root" $ "key" "auth") }}.{{ .Release.Namespace }}.svc.cluster.local/api/auth/validate"
     nginx.ingress.kubernetes.io/auth-response-headers: "X-User-Id"
-    # CORS: заголовок добавляется ко ВСЕМ ответам включая 401 от auth_request.
-    # Без always браузер блокирует чтение 401 как CORS-ошибку, JS не видит статус
-    # и не может сделать refresh токена — замкнутый круг.
-    # proxy_hide_header убирает дублирующий заголовок от Go-middleware бэкенда.
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://auto-platform-nine.vercel.app"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      add_header 'Access-Control-Allow-Origin' $http_origin always;
       proxy_hide_header 'Access-Control-Allow-Origin';
-      if ($request_method = OPTIONS) {
-        add_header 'Access-Control-Allow-Origin' $http_origin always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
-        return 204;
-      }
+      proxy_hide_header 'Access-Control-Allow-Methods';
+      proxy_hide_header 'Access-Control-Allow-Headers';
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls.enabled }}
