@@ -4,3 +4,4 @@ kubeseal
 kubeseal-*.tar.gz
 sealed-secrets-cert.pem
 argocd-linux-amd64
+команды.txt
